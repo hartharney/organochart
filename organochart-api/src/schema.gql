@@ -1,0 +1,114 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AddUserToDepartmentInput {
+  departmentId: String!
+  userId: String!
+}
+
+type AuthResponse {
+  accessToken: String!
+  user: User!
+}
+
+input ChangeUserRoleInput {
+  role: UserRole!
+  userId: String!
+}
+
+input CreateDepartmentInput {
+  name: String!
+  subDepartments: [CreateSubDepartmentInput!]
+}
+
+input CreateSubDepartmentInput {
+  name: String!
+}
+
+input CreateUserInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Department {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  manager: User
+  members: [User!]
+  name: String!
+  parentDepartment: Department
+  subDepartments: [Department!]
+  updatedAt: DateTime!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  addUserToDepartment(data: AddUserToDepartmentInput!): User!
+  changeUserRole(data: ChangeUserRoleInput!): User!
+  createDepartment(input: CreateDepartmentInput!): Department!
+  deleteDepartment(id: Int!): Boolean!
+  deleteUser(id: String!): Boolean!
+  joinDepartment(departmentId: Int!): Boolean!
+  joinSubDepartment(subDepartmentId: Int!): Boolean!
+  login(data: LoginInput!): AuthResponse!
+  register(data: CreateUserInput!): User!
+  removeUserFromDepartment(departmentId: String!, userId: String!): User!
+  updateDepartment(input: UpdateDepartmentInput!): Department!
+  updateUser(data: UpdateUserInput!): User!
+}
+
+type Query {
+  accessibleDepartments: [Department!]!
+  getDepartment(id: Int!): Department!
+  getDepartments: [Department!]!
+  getHealthStatus: String!
+  managedDepartments: [Department!]!
+  me: User!
+  user(id: String!): User!
+  userDepartments(userId: String!): [Department!]!
+  users: [User!]!
+}
+
+input UpdateDepartmentInput {
+  id: Int!
+  name: String!
+}
+
+input UpdateUserInput {
+  email: String
+  firstName: String
+  lastName: String
+  password: String
+}
+
+type User {
+  accessibleDepartments: [Department!]
+  accessibleDepartmentsField: [Department!]
+  departments: [Department!]
+  email: String!
+  firstName: String!
+  id: ID!
+  joinedDate: DateTime!
+  lastName: String!
+  manages: [Department!]
+  role: UserRole!
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  USER
+}
