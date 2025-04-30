@@ -4,6 +4,7 @@ import { CreateDepartmentInput } from 'src/graphql/dto/create-department.input';
 import { Department } from 'src/graphql/models/department.schema';
 import { User } from 'src/graphql/models/user.schema';
 import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class DepartmentService {
@@ -16,29 +17,29 @@ export class DepartmentService {
   ) {}
 
   async create(input: CreateDepartmentInput): Promise<Department> {
-    const { name, subDepartments } = input;
+    const subDepartments = input.subDepartments || [];
 
-    const department = this.departmentRepository.create({ name });
+    const updatedSubDepartments = subDepartments.map((subDepartment) => ({
+      ...subDepartment,
+      id: uuidv4(),
+    }));
 
-    if (subDepartments && subDepartments.length > 0) {
-      department.subDepartments = subDepartments.map((sub) =>
-        this.departmentRepository.create({ name: sub.name }),
-      );
-    }
+    const department = this.departmentRepository.create({
+      name: input.name,
+      description: input.description,
+      subDepartments: updatedSubDepartments,
+    });
 
     return this.departmentRepository.save(department);
   }
 
-  findAll(): Promise<Department[]> {
-    return this.departmentRepository.find({
-      relations: ['subDepartments'],
-    });
+  async findAll(): Promise<Department[]> {
+    return this.departmentRepository.find();
   }
 
-  async findOne(id: number): Promise<Department> {
+  async findOne(id: string): Promise<Department> {
     const department = await this.departmentRepository.findOne({
-      where: { id: id.toString() },
-      relations: ['subDepartments'],
+      where: { id },
     });
 
     if (!department) {
@@ -48,9 +49,13 @@ export class DepartmentService {
     return department;
   }
 
-  async update(id: number, name: string): Promise<Department> {
+  async update(
+    id: string,
+    name: string,
+    subDepartments: { id?: string; name: string }[],
+  ): Promise<Department> {
     const department = await this.departmentRepository.findOne({
-      where: { id: id.toString() },
+      where: { id },
     });
 
     if (!department) {
@@ -58,68 +63,57 @@ export class DepartmentService {
     }
 
     department.name = name;
+
+    const updatedSubDepartments = subDepartments.map((sub) => {
+      if (sub.id) {
+        const existingSubDept = department.subDepartments.find(
+          (s) => s.id === sub.id,
+        );
+        if (existingSubDept) {
+          existingSubDept.name = sub.name;
+          return existingSubDept;
+        }
+      }
+
+      return { id: uuidv4(), name: sub.name };
+    });
+
+    department.subDepartments = updatedSubDepartments.filter(
+      (sub) => sub.name.trim() !== '',
+    );
+
     return this.departmentRepository.save(department);
   }
 
-  async remove(id: number): Promise<boolean> {
+  async remove(id: string): Promise<boolean> {
     const department = await this.departmentRepository.findOne({
-      where: { id: id.toString() },
-      relations: ['subDepartments'],
+      where: { id },
     });
 
     if (!department) {
       throw new NotFoundException(`Department with id ${id} not found`);
     }
 
-    // First remove all sub-departments
-    if (department.subDepartments?.length) {
-      await this.departmentRepository.remove(department.subDepartments);
-    }
-
     await this.departmentRepository.remove(department);
     return true;
   }
 
-  async joinDepartment(userId: number, departmentId: number): Promise<boolean> {
+  async joinDepartment(userId: string, departmentId: string): Promise<boolean> {
     const user = await this.userRepository.findOne({
-      where: { id: userId.toString() },
-      relations: ['departments'],
-    });
-
-    if (!user) throw new NotFoundException(`User not found`);
-
-    const department = await this.departmentRepository.findOne({
-      where: { id: departmentId.toString() },
-    });
-    if (!department) throw new NotFoundException(`Department not found`);
-
-    user.departments = [department];
-    await this.userRepository.save(user);
-    return true;
-  }
-
-  async joinSubDepartment(
-    userId: number,
-    subDepartmentId: number,
-  ): Promise<boolean> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId.toString() },
+      where: { id: userId },
       relations: ['departments'],
     });
 
     if (!user) throw new NotFoundException('User not found');
 
-    const subDepartment = await this.departmentRepository.findOne({
-      where: { id: subDepartmentId.toString() },
+    const department = await this.departmentRepository.findOne({
+      where: { id: departmentId },
     });
 
-    if (!subDepartment) throw new NotFoundException('Sub-department not found');
+    if (!department) throw new NotFoundException('Department not found');
 
-    subDepartment.members = subDepartment.members || [];
-    subDepartment.members.push(user);
-
-    await this.departmentRepository.save(subDepartment);
-
+    user.departments = [department];
+    await this.userRepository.save(user);
     return true;
   }
 }

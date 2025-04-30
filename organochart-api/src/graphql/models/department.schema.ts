@@ -5,15 +5,15 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany,
   ManyToMany,
   JoinColumn,
 } from 'typeorm';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { User } from './user.schema';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @ObjectType()
-@Entity({ name: 'department' })
+@Entity('department')
 export class Department {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
@@ -27,18 +27,10 @@ export class Department {
   @Column({ nullable: true })
   description: string;
 
-  @Field(() => [Department], { nullable: true })
-  @OneToMany(() => Department, (dept) => dept.parentDepartment, {
-    cascade: true,
-  })
-  subDepartments: Department[];
-
-  @Field(() => Department, { nullable: true })
-  @ManyToOne(() => Department, (dept) => dept.subDepartments, {
-    nullable: true,
-  })
-  @JoinColumn()
-  parentDepartment: Department;
+  // subDepartments as a jsonb array
+  @Field(() => [GraphQLJSONObject], { nullable: true })
+  @Column('jsonb', { nullable: true })
+  subDepartments: { id: string; name: string }[];
 
   @Field(() => User, { nullable: true })
   @ManyToOne(() => User, (user) => user.manages, { nullable: true })

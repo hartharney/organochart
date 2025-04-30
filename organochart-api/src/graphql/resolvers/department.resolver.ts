@@ -1,5 +1,4 @@
-import { Resolver, Mutation, Args, Query, Int } from '@nestjs/graphql';
-
+import { Resolver, Mutation, Args, Query, ID } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { Department } from '../models/department.schema';
@@ -22,44 +21,39 @@ export class DepartmentResolver {
   }
 
   @Query(() => [Department])
-  getDepartments(): Promise<Department[]> {
+  async getDepartments(): Promise<Department[]> {
     return this.departmentService.findAll();
   }
 
   @Query(() => Department)
-  getDepartment(
-    @Args('id', { type: () => Int }) id: number,
+  async getDepartment(
+    @Args('id', { type: () => ID }) id: string,
   ): Promise<Department> {
     return this.departmentService.findOne(id);
   }
-
   @Mutation(() => Department)
-  updateDepartment(
+  async updateDepartment(
     @Args('input') input: UpdateDepartmentInput,
   ): Promise<Department> {
-    return this.departmentService.update(input.id, input.name);
+    return this.departmentService.update(
+      input.id,
+      input.name,
+      input.subDepartments,
+    );
   }
 
   @Mutation(() => Boolean)
   deleteDepartment(
-    @Args('id', { type: () => Int }) id: number,
+    @Args('id', { type: () => ID }) id: string,
   ): Promise<boolean> {
     return this.departmentService.remove(id);
   }
 
   @Mutation(() => Boolean)
   async joinDepartment(
-    @Args('departmentId', { type: () => Int }) departmentId: number,
+    @Args('departmentId', { type: () => ID }) departmentId: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    return this.departmentService.joinDepartment(+user.id, departmentId);
-  }
-
-  @Mutation(() => Boolean)
-  async joinSubDepartment(
-    @Args('subDepartmentId', { type: () => Int }) subDepartmentId: number,
-    @CurrentUser() user: User,
-  ): Promise<boolean> {
-    return this.departmentService.joinSubDepartment(+user.id, subDepartmentId);
+    return this.departmentService.joinDepartment(user.id, departmentId);
   }
 }

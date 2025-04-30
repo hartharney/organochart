@@ -14,7 +14,6 @@ async function bootstrap() {
 
   const logger = new Logger('Bootstrap');
 
-  // Enable CORS for all origins, allowing credentials and certain HTTP methods
   app.enableCors({
     origin: true,
     credentials: true,

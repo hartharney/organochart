@@ -1,0 +1,65 @@
+# Logs
+**/logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+
+# dotenv environment variable files
+.env
+.env.*
+!.env.example
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports
+report.*.json
+
+# temp directories
+.temp
+.tmp
+
+# IDEs and editors
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# dependencies (inside each package)
+organochart-api/node_modules/
+organochart-client/node_modules/
+
+# dist / build output
+organochart-api/dist/
+organochart-client/dist/
+organochart-api/build/
+organochart-client/build/
+
+# test coverage
+**/coverage/
+**/.nyc_output/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Next.js
+organochart-client/.next/
+organochart-client/out/
+
+# Vercel
+.vercel/
+
+# Misc
+*.pem
+.qodo

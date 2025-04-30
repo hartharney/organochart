@@ -18,12 +18,9 @@ input ChangeUserRoleInput {
 }
 
 input CreateDepartmentInput {
+  description: String
   name: String!
-  subDepartments: [CreateSubDepartmentInput!]
-}
-
-input CreateSubDepartmentInput {
-  name: String!
+  subDepartments: [JSONObject]!
 }
 
 input CreateUserInput {
@@ -45,10 +42,14 @@ type Department {
   manager: User
   members: [User!]
   name: String!
-  parentDepartment: Department
-  subDepartments: [Department!]
+  subDepartments: [JSONObject!]
   updatedAt: DateTime!
 }
+
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
 
 input LoginInput {
   email: String!
@@ -59,10 +60,9 @@ type Mutation {
   addUserToDepartment(data: AddUserToDepartmentInput!): User!
   changeUserRole(data: ChangeUserRoleInput!): User!
   createDepartment(input: CreateDepartmentInput!): Department!
-  deleteDepartment(id: Int!): Boolean!
+  deleteDepartment(id: ID!): Boolean!
   deleteUser(id: String!): Boolean!
-  joinDepartment(departmentId: Int!): Boolean!
-  joinSubDepartment(subDepartmentId: Int!): Boolean!
+  joinDepartment(departmentId: ID!): Boolean!
   login(data: LoginInput!): AuthResponse!
   register(data: CreateUserInput!): User!
   removeUserFromDepartment(departmentId: String!, userId: String!): User!
@@ -72,7 +72,7 @@ type Mutation {
 
 type Query {
   accessibleDepartments: [Department!]!
-  getDepartment(id: Int!): Department!
+  getDepartment(id: ID!): Department!
   getDepartments: [Department!]!
   getHealthStatus: String!
   managedDepartments: [Department!]!
@@ -83,8 +83,9 @@ type Query {
 }
 
 input UpdateDepartmentInput {
-  id: Int!
+  id: String!
   name: String!
+  subDepartments: [JSONObject!]
 }
 
 input UpdateUserInput {

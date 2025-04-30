@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-// import { AuthModule } from './auth/auth.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import * as dotenv from 'dotenv';
 import { UserResolver } from './graphql/resolvers/user.resolver';
@@ -14,8 +13,8 @@ import { DepartmentResolver } from './graphql/resolvers/department.resolver';
 import { HttpModule } from '@nestjs/axios';
 import { DepartmentModule } from './department/department.module';
 import { AppController } from './app.controller';
+import { AuthModule } from './auth/auth.module';
 dotenv.config();
-console.log('process.env.DB_HOST', process.env.DB_HOST);
 
 @Module({
   imports: [
@@ -33,7 +32,7 @@ console.log('process.env.DB_HOST', process.env.DB_HOST);
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      // entities: [__dirname + '/**/*.schema{.ts,.js}'],
+
       entities: [User, Department],
       synchronize: false,
       ssl: {
@@ -45,6 +44,7 @@ console.log('process.env.DB_HOST', process.env.DB_HOST);
     // AuthModule,
     UserModule,
     DepartmentModule,
+    AuthModule,
     HttpModule,
   ],
   controllers: [AppController],

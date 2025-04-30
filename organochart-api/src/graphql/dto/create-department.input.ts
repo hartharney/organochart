@@ -1,5 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { MinLength } from 'class-validator';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @InputType()
 export class CreateSubDepartmentInput {
@@ -14,6 +15,9 @@ export class CreateDepartmentInput {
   @MinLength(2)
   name: string;
 
-  @Field(() => [CreateSubDepartmentInput], { nullable: true })
-  subDepartments?: CreateSubDepartmentInput[];
+  @Field({ nullable: true })
+  description?: string;
+
+  @Field(() => [GraphQLJSONObject], { nullable: 'items' })
+  subDepartments?: { id: string; name: string }[];
 }

@@ -74,7 +74,7 @@ export class UserResolver {
     return this.userService.addUserToDepartment(data.userId, data.departmentId);
   }
 
-  @Mutation(() => User) // Change to User instead of Boolean
+  @Mutation(() => User)
   @UseGuards(GqlAuthGuard)
   removeUserFromDepartment(
     @Args('userId') userId: string,
@@ -83,7 +83,7 @@ export class UserResolver {
     return this.userService.removeUserFromDepartment(userId, departmentId);
   }
 
-  @Mutation(() => User) // Change to User instead of Boolean
+  @Mutation(() => User)
   @UseGuards(GqlAuthGuard)
   changeUserRole(@Args('data') data: ChangeUserRoleInput): Promise<User> {
     return this.userService.changeUserRole(data.userId, data.role);

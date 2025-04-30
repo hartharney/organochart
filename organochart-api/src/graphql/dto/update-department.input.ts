@@ -1,12 +1,16 @@
-import { InputType, Field, Int } from '@nestjs/graphql';
+import { InputType, Field } from '@nestjs/graphql';
 import { MinLength } from 'class-validator';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @InputType()
 export class UpdateDepartmentInput {
-  @Field(() => Int)
-  id: number;
+  @Field()
+  id: string;
 
   @Field()
   @MinLength(2)
   name: string;
+
+  @Field(() => [GraphQLJSONObject], { nullable: true })
+  subDepartments: { id?: string; name: string }[];
 }
