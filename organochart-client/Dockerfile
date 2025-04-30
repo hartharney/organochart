@@ -1,5 +1,5 @@
 # Use official Node image
-FROM node:alpine
+FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
@@ -11,11 +11,14 @@ RUN npm install
 # Copy the rest of the source code
 COPY . .
 
-# Build at image build time
+# ✅ Pass environment variable at build time
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
+# ✅ Build the Next.js app (env is now available during build)
 RUN npm run build
 
-# Expose API port
 EXPOSE 3000
 
-# Start the application
+# ✅ Start in production mode
 CMD ["npm", "run", "start"]
