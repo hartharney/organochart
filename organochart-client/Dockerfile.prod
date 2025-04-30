@@ -1,5 +1,5 @@
-# Use official Node image
-FROM node:alpine
+# Use official Node image for build
+FROM node:alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -8,17 +8,27 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Install production dependencies (optional but good practice for smaller images)
-RUN npm install --production
-
 # Copy the rest of the source code
 COPY . .
 
-# Build the Next.js app
+# Build the project
 RUN npm run build
 
-# Expose the port the app will run on
+# Final image with only production artifacts
+FROM node:alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install only production dependencies
+COPY package*.json ./
+RUN npm install --only=production
+
+# Copy the build folder from the builder stage
+COPY --from=builder /app/dist ./dist
+
+# Expose the required port
 EXPOSE 3000
 
-# Start the application in production mode
+# Start the production application
 CMD ["npm", "run", "start"]

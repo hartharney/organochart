@@ -11,6 +11,9 @@ RUN npm install
 # Copy the rest of the source code
 COPY . .
 
+# Build at image build time
+RUN npm run build
+
 # Expose API port
 EXPOSE 3000
 
